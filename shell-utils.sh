@@ -18,7 +18,7 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 # prints an error message to STDERR
-# Args: $@ -> message to print
+# Arguments: $@ -> message to print
 function print_error 
 { 
     printf "ERROR: ${@}\n" >&2
@@ -41,8 +41,7 @@ function print_usage
 # ask a yes/no question
 # Arguments: $1 -> The prompt
 #            $2 -> The default answer (optional)
-# Variables: YESNO -> set to the user response
-#                y for yes, n for no
+# Variables: YESNO -> set to the user response y for yes, n for no
 function prompt_yes_no  
 {
     if [ $# -lt 1 ] ; then 
@@ -192,7 +191,7 @@ function get_space_used
     du -sh "${1}" | awk '{ print $1 ; }'
 }
 
-# print a list of process ids matching $1
+# print a list of process id(s) matching $1
 # Arguments: $1 -> the process name to search for
 function get_pid
 {
@@ -294,7 +293,6 @@ function app_exists
     return 1
 }
 
-# rename_all_suffix
 # rename all the files with a new suffix
 # Arguments: $1 -> the old suffix (for example html)
 #            $2 -> the new suffix (for example xhtml)
@@ -355,7 +353,7 @@ function rename_all_prefix
     return 0
 }
 
-# convert a list of dos formatted files to the posix format
+# convert a list of dos formatted files to the POSIX format
 # Arguments: $@ -> the list of files to convert
 function dos2posix 
 {
@@ -371,7 +369,7 @@ function dos2posix
     return 0
 }
 
-# print the operating system's name
+# print the system's name
 function get_os_name
 {
     case `uname -s` in
