@@ -19,21 +19,21 @@
 
 # prints an error message to STDERR
 # Arguments: $@ -> message to print
-function print_error 
+function print_error () 
 { 
     printf "ERROR: ${@}\n" >&2
 }
 
 # print a warning nessage to STDERR
 # Arguments: $@ -> message to print
-function print_warning  
+function print_warning ()  
 { 
     printf "WARNING: ${@}\n" >&2
 }
 
 # print a usage message and then exits
 # Arguments: $@ -> message to print
-function print_usage  
+function print_usage ()  
 {
     printf "USAGE: ${@}\n" >&2
 }
@@ -42,7 +42,7 @@ function print_usage
 # Arguments: $1 -> The prompt
 #            $2 -> The default answer (optional)
 # Variables: YESNO -> set to the user response y for yes, n for no
-function prompt_yes_no  
+function prompt_yes_no ()  
 {
     if [ $# -lt 1 ] ; then 
 	print_error "Insufficient Arguments."
@@ -92,7 +92,7 @@ function prompt_yes_no
 # Arguments: $1 -> The prompt 
 #            $2 -> The default answer (optional)
 # Variables: RESPONSE -> set to the user response
-function prompt_response  
+function prompt_response ()  
 {
     if [ $# -lt 1 ] ; then
 	print_error "Insufficient Arguments."
@@ -127,7 +127,7 @@ function prompt_response
 
 # print the available space for a directory in KB
 # Arguments: $1 -> The directory to check
-function get_free_space  
+function get_free_space ()  
 {
     if [ $# -lt 1 ] ; then
 	print_error "Insufficient Arguments."
@@ -144,7 +144,7 @@ function get_free_space
 #                  k for kilobytes
 #                  m for megabytes 
 #                  g for gigabytes
-function is_space_available  
+function is_space_available ()
 {
     if [ $# -lt 2 ] ; then
 	print_error "Insufficient Arguments."
@@ -175,7 +175,7 @@ function is_space_available
 
 # print the disk space usage of a directory
 # Arguments: $1 -> The directory
-function get_space_used  
+function get_space_used ()  
 {
 
     if [ $# -lt 1 ] ; then
@@ -193,7 +193,7 @@ function get_space_used
 
 # print a list of process id(s) matching $1
 # Arguments: $1 -> the process name to search for
-function get_pid
+function get_pid ()
 {
     if [ $# -lt 1 ] ; then
 	print_error "Insufficient Arguments."
@@ -209,7 +209,7 @@ function get_pid
 
 # print the numeric user id
 # Arguments: $1 -> the user name
-function get_uid
+function get_uid ()
 {
     if [ $# -lt 1 ] ; then
 	print_error "Insufficient Arguments."
@@ -231,21 +231,21 @@ function get_uid
 
 # print an input string to lower case
 # Arguments: $@ -> the string
-function to_lower  
+function to_lower ()  
 {
     printf "${@}\n" | tr '[A-Z]' '[a-z]'
 }
 
 # print an input string to upper case
 # Arguments: $@ -> the string
-function to_upper  
+function to_upper ()  
 {
     printf "${@}\n" | tr '[a-z]' '[A-Z]' 
 }
 
 # convert the input files to lower case
 # Arguments: $@ -> files to convert
-function file_to_lower
+function file_to_lower ()
 {
     for file in "${@}"
     do
@@ -261,7 +261,7 @@ function file_to_lower
 
 # convert the input files to upper case
 # Arguments: $@ -> files to convert
-function file_to_upper  
+function file_to_upper ()  
 {
     for file in "${@}"
     do
@@ -277,7 +277,7 @@ function file_to_upper
 
 # return true (0) if an application exists
 # Arguments: $1 -> application to search for
-function app_exists
+function app_exists ()
 {
     if [ $# -lt 1 ] ; then
 	    print_error "Insufficient arguments."
@@ -296,7 +296,7 @@ function app_exists
 # rename all the files with a new suffix
 # Arguments: $1 -> the old suffix (for example html)
 #            $2 -> the new suffix (for example xhtml)
-function rename_all_suffix 
+function rename_all_suffix () 
 {
     if [ $# -lt 2 ] ; then
 	    print_error "Insufficient arguments."
@@ -326,7 +326,7 @@ function rename_all_suffix
 # rename all the files with a new prefix
 # Arguments: $1 -> the old prefix 
 #            $2 -> the new prefix
-function rename_all_prefix 
+function rename_all_prefix () 
 {
     if [ $# -lt 2 ] ; then
 	    print_error "Insufficient arguments."
@@ -355,7 +355,7 @@ function rename_all_prefix
 
 # convert a list of dos formatted files to the POSIX format
 # Arguments: $@ -> the list of files to convert
-function dos2posix 
+function dos2posix () 
 {
     for file in "${@}"
     do
@@ -370,7 +370,7 @@ function dos2posix
 }
 
 # print the system's name
-function get_os_name
+function get_os_name ()
 {
     case `uname -s` in
         *BSD)
@@ -397,7 +397,7 @@ function get_os_name
 
 # print out the number of characters which exist in a file
 # Arguments: $@ -> the files to count the chars of
-function get_chars  
+function get_chars ()  
 {
     case `get_os_name` in
         bsd|sunos|linux)
@@ -413,7 +413,7 @@ function get_chars
 
 # insert quotes in the beggining and the end of each file's line
 # Arguments: $1 -> the file of which the contents will be quoted
-function insert_quotes  
+function insert_quotes ()  
 {
     if [ $# -ne 1 ] ; then
         print_error "Incorrect Arguments."
@@ -435,7 +435,7 @@ function insert_quotes
 # remove all the files of a specific type that exist in the current directory
 # Arguments: $1 -> the string to search in the output of `file'
 # NOTE: use with caution...
-function rm_all
+function rm_all ()
 {
     if [ $# -ne 1 ] ; then
         print_error "Incorrect Arguments."
@@ -446,91 +446,108 @@ function rm_all
 }
 
 # shortcut to clear
-function c
+function c ()
 {
     clear
 }
 
 # verbose remove
 # Arguments: $@ -> what to remove
-function rm
+function rm ()
 {
    /bin/rm -i "${@}"
 }
 
 # listing with colours by default
 # Arguments: $@ -> what to list
-function ls
+function ls ()
 {
    /bin/ls --color=auto "${@}"
 }
 
 # long listing
 # Arguments: $@ -> what to list
-function ll
+function ll ()
 {
    /bin/ls -l --color=auto "${@}"
 }
 
 # list all files
 # Arguments: $@ -> what to list
-function la
+function la ()
 {
    /bin/ls -A --color=auto "${@}"
 }
 
 # list by column and type
 # Arguments: $@ -> what to list
-function l
+function l ()
 {
    /bin/ls -CF --color=auto "${@}"
 }
 
 # grep with colours by default
 # Arguments: $@ -> what to match
-function grep
+function grep ()
 {
    /bin/grep --color=auto "${@}"
 }
 
 # fgrep with colours by default
 # Arguments: $@ -> what to match
-function fgrep
+function fgrep ()
 {
    /bin/fgrep --color=auto "${@}"
 }
 
 # egrep with colours by default
 # Arguments: $@ -> what to match
-function egrep
+function egrep ()
 {
    /bin/egrep --color=auto "${@}"
 }
 
 # verbose move/rename
 # Arguments: $@ -> what to match
-function mv
+function mv ()
 {
     /bin/mv -i "${@}"
 }
 
 # verbose copy
 # Arguments: $@ -> what to match
-function cp
+function cp ()
 {
     /bin/cp -i "${@}"
 }
 
 # sort files
 # Arguments: $@ -> what to match
-function fsort
+function fsort ()
 {
         ls -lSh ${@} 2>/dev/null | grep -v total | awk '{print $5 "\t" $9}'
 }
 
 # sort mixed (directories & files)
 # Arguments: $@ -> what to match
-function dsort
+function dsort ()
 {
     du -s ${@} 2>/dev/null | sort -rn | awk '{print $2}' | xargs du -sh 2>/dev/null
+}
+
+# simple way to keep a backup of a file
+# Arguments: $1 -> the file
+function bkup ()
+{
+    if [ $# -ne 1 ] ; then
+        print_error "Incorrect Arguments."
+        return 1
+    fi
+
+    FILE_COPY=${1}.`date +%Y%m%d.%H%M.ORIG`
+    mv -f ${1} ${FILE_COPY}
+    printf "Backing up ${1} to ${FILE_COPY}\n"
+    cp -p ${FILE_COPY} ${1}
+
+    unset FILE_COPY
 }
