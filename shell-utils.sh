@@ -173,24 +173,6 @@ function is_space_available ()
     return 1
 }
 
-# print the disk space usage of a directory
-# Arguments: $1 -> The directory
-function get_space_used ()  
-{
-
-    if [ $# -lt 1 ] ; then
-	    print_error "Insufficient Arguments."
-	    return 1
-    fi
-
-    if [ ! -d "${1}" ] ; then
-	    print_error "${1} is not a directory."
-	    return 1
-    fi
-
-    du -sh "${1}" | awk '{ print $1 ; }'
-}
-
 # print a list of process id(s) matching $1
 # Arguments: $1 -> the process name to search for
 function get_pid ()
@@ -273,24 +255,6 @@ function file_to_upper ()
     done
 
     return 0
-}
-
-# return true (0) if an application exists
-# Arguments: $1 -> application to search for
-function app_exists ()
-{
-    if [ $# -lt 1 ] ; then
-	    print_error "Insufficient arguments."
-	    return 1
-    fi
-
-    type "${1}" 2>/dev/null 1>&2
-
-    if [ $? -eq 0 ] ; then
-	    return 0
-    fi
-
-    return 1
 }
 
 # rename all the files with a new suffix
