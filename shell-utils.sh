@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # shell-utils.sh -- A collection of useful shellscript functions
-# Copyright (C) 2005-12  Sakis Kasampalis <faif at dtek period gr>
+# Copyright (C) 2005-12  Sakis Kasampalis <faifgnu@gmail.com>
 
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -45,42 +45,42 @@ function print_usage ()
 function prompt_yes_no ()  
 {
     if [ $# -lt 1 ] ; then 
-	print_error "Insufficient Arguments."
-	return 1
+	    print_error "Insufficient Arguments."
+	    return 1
     fi
 
     DEF_ARG=""
     YESNO=""
 
     case "${2}" in 
-	[yY]|[yY][eE][sS]) 
-	    DEF_ARG=y ;;
-	[nN]|[nN][oO]) 
-	    DEF_ARG=n ;;
+	    [yY]|[yY][eE][sS]) 
+	        DEF_ARG=y ;;
+	    [nN]|[nN][oO]) 
+	        DEF_ARG=n ;;
     esac
 
     while :
     do
-	printf "${1} (y/n)? "
+	    printf "${1} (y/n)? "
 
-	if [ -n "${DEF_ARG}" ] ; then
-	    printf "[${DEF_ARG}] "
-	fi
+	    if [ -n "${DEF_ARG}" ] ; then
+	        printf "[${DEF_ARG}] "
+	    fi
 
-	read YESNO
+	    read YESNO
 
-	if [ -z "${YESNO}" ] ; then 
-	    YESNO="${DEF_ARG}"
-	fi
+	    if [ -z "${YESNO}" ] ; then 
+	        YESNO="${DEF_ARG}"
+	    fi
 
-	case "${YESNO}" in 
-	    [yY]|[yY][eE][sS]) 
-		YESNO=y ; break ;;
-	    [nN]|[nN][oO]) 
-		YESNO=n ; break ;;
-	    *)
-		YESNO="" ;;
-	esac
+	    case "${YESNO}" in 
+	        [yY]|[yY][eE][sS]) 
+		        YESNO=y ; break ;;
+	        [nN]|[nN][oO]) 
+		        YESNO=n ; break ;;
+	        *)
+		        YESNO="" ;;
+	    esac
     done
 
     export YESNO
@@ -95,8 +95,8 @@ function prompt_yes_no ()
 function prompt_response ()  
 {
     if [ $# -lt 1 ] ; then
-	print_error "Insufficient Arguments."
-	return 1
+	    print_error "Insufficient Arguments."
+	    return 1
     fi
 
     RESPONSE=""
@@ -104,20 +104,20 @@ function prompt_response ()
 
     while :
     do
-	printf "${1} ? "
-	if [ -n "${DEF_ARG}" -a "${DEF_ARG}" != "-" ] ; then 
-	    printf "[${DEF_ARG}] "
- 	fi
-	
-	read RESPONSE
-	
-	if [ -n "${RESPONSE}" ] ; then
-	    break
-	elif [ -z "${RESPONSE}" -a -n "${DEF_ARG}" ] ; then
-	    RESPONSE="${DEF_ARG}"
-	    if [ "${RESPONSE}" = "-" ] ; then RESPONSE="" ; fi
-	    break
-	fi
+	    printf "${1} ? "
+	    if [ -n "${DEF_ARG}" -a "${DEF_ARG}" != "-" ] ; then 
+	        printf "[${DEF_ARG}] "
+ 	    fi
+	    
+	    read RESPONSE
+	    
+	    if [ -n "${RESPONSE}" ] ; then
+	        break
+	    elif [ -z "${RESPONSE}" -a -n "${DEF_ARG}" ] ; then
+	        RESPONSE="${DEF_ARG}"
+	        if [ "${RESPONSE}" = "-" ] ; then RESPONSE="" ; fi
+	        break
+	    fi
     done
 
     export RESPONSE
@@ -130,8 +130,8 @@ function prompt_response ()
 function get_free_space ()  
 {
     if [ $# -lt 1 ] ; then
-	print_error "Insufficient Arguments."
-	return 1
+	    print_usage "get_free_space [directory]"
+	    return 1
     fi
 
     df -k "${1}" | awk 'NR != 1 { print $4 ; }'
@@ -147,13 +147,13 @@ function get_free_space ()
 function is_space_available ()
 {
     if [ $# -lt 2 ] ; then
-	print_error "Insufficient Arguments."
-	return 1
+	    print_error "Insufficient Arguments."
+	    return 1
     fi
 
     if [ ! -d "${1}" ] ; then
-	print_error "${1} is not a directory."
-	return 1
+	    print_error "${1} is not a directory."
+	    return 1
     fi
 
     SPACE_MIN="${2}"
@@ -161,12 +161,12 @@ function is_space_available ()
     case "${3}" in
         [mM]|[mM][bB])
             SPACE_MIN=`echo "$SPACE_MIN * 1024" | bc` ;;
-	[gG]|[gG][bB])
+	    [gG]|[gG][bB])
             SPACE_MIN=`echo "$SPACE_MIN * 1024 * 1024" | bc` ;;
     esac
 	
     if [ `get_free_space "$1"` -gt "${SPACE_MIN}" ] ; then
-	return 0
+	    return 0
     fi
 
     unset SPACE_MIN
@@ -179,13 +179,13 @@ function get_space_used ()
 {
 
     if [ $# -lt 1 ] ; then
-	print_error "Insufficient Arguments."
-	return 1
+	    print_error "Insufficient Arguments."
+	    return 1
     fi
 
     if [ ! -d "${1}" ] ; then
-	print_error "${1} is not a directory."
-	return 1
+	    print_error "${1} is not a directory."
+	    return 1
     fi
 
     du -sh "${1}" | awk '{ print $1 ; }'
@@ -196,7 +196,7 @@ function get_space_used ()
 function get_pid ()
 {
     if [ $# -lt 1 ] ; then
-	print_error "Insufficient Arguments."
+	    print_error "Insufficient Arguments."
         return 1
     fi
 
@@ -212,15 +212,15 @@ function get_pid ()
 function get_uid ()
 {
     if [ $# -lt 1 ] ; then
-	print_error "Insufficient Arguments."
+	    print_error "Insufficient Arguments."
         return 1
     fi
 
     ID=`id ${1} 2>/dev/null`
 
     if [ $? -eq 1 ] ; then
-	print_error "No such user: ${1}"
-	return 1
+	    print_error "No such user: ${1}"
+	    return 1
     fi
 
     echo ${ID} | sed -e 's/(.*$//' -e 's/^uid=//'
@@ -249,11 +249,11 @@ function file_to_lower ()
 {
     for file in "${@}"
     do
-	if [ ! -f "${file}" ]; then
-	    print_error "File ${file} does not exist";
-	else
-	    mv -f "${file}" "`printf "${file}\n" | tr '[A-Z]' '[a-z]'`"
-	fi
+	    if [ ! -f "${file}" ]; then
+	        print_error "File ${file} does not exist";
+	    else
+	        mv -f "${file}" "`printf "${file}\n" | tr '[A-Z]' '[a-z]'`"
+	    fi
     done
 
     return 0
@@ -265,11 +265,11 @@ function file_to_upper ()
 {
     for file in "${@}"
     do
-	if [ ! -f "${file}" ]; then
-	    print_error "File ${file} does not exist";
-	else
-	    mv -f "${file}" "`printf "${file}\n" | tr '[a-z]' '[A-Z]'`"
-	fi
+	    if [ ! -f "${file}" ]; then
+	        print_error "File ${file} does not exist";
+	    else
+	        mv -f "${file}" "`printf "${file}\n" | tr '[a-z]' '[A-Z]'`"
+	    fi
     done
 
     return 0
@@ -287,7 +287,7 @@ function app_exists ()
     type "${1}" 2>/dev/null 1>&2
 
     if [ $? -eq 0 ] ; then
-	return 0
+	    return 0
     fi
 
     return 1
@@ -309,14 +309,14 @@ function rename_all_suffix ()
     # fake command to check if the suffix really exists
     ls *."${OLDSUFFIX}" 2>/dev/null
     if [ $? -ne 0 ] ; then
-	print_warning "There are no files with the suffix \`${OLDSUFFIX}'."
-	return 1
+	    print_warning "There are no files with the suffix \`${OLDSUFFIX}'."
+	    return 1
     fi
 
     for file in *."${OLDSUFFIX}"
     do
-	NEWNAME=`printf "${file}\n" | sed "s/${OLDSUFFIX}/${NEWSUFFIX}/"`
-	mv -i "${file}" "${NEWNAME}"
+	    NEWNAME=`printf "${file}\n" | sed "s/${OLDSUFFIX}/${NEWSUFFIX}/"`
+	    mv -i "${file}" "${NEWNAME}"
     done
 
     unset OLDSUFFIX NEWSUFFIX NEWNAME
@@ -339,14 +339,14 @@ function rename_all_prefix ()
     # fake command to check if the prefix really exists
     ls "${OLDPREFIX}"* 2>/dev/null
     if [ $? -ne 0 ] ; then
-	print_warning "There are no files with the prefix \`${OLDPREFIX}'."
-	return 1
+	    print_warning "There are no files with the prefix \`${OLDPREFIX}'."
+	    return 1
     fi
 
     for file in "${OLDPREFIX}"*
     do
-	NEWNAME=`printf "${file}\n" | sed "s/${OLDPREFIX}/${NEWPREFIX}/"`
-	mv -i "${file}" "${NEWNAME}"
+	    NEWNAME=`printf "${file}\n" | sed "s/${OLDPREFIX}/${NEWPREFIX}/"`
+	    mv -i "${file}" "${NEWNAME}"
     done
 
     unset OLDPREFIX NEWPREFIX NEWNAME
@@ -359,11 +359,11 @@ function dos2posix ()
 {
     for file in "${@}"
     do
-      tr -d '\015' < "${file}" > "${file}".posix
-      prompt_yes_no "Overwrite ${file}"
-      if [ "${YESNO}" = "y" ] ; then
-	  mv -f "${file}".posix "${file}"
-      fi
+        tr -d '\015' < "${file}" > "${file}".posix
+        prompt_yes_no "Overwrite ${file}"
+        if [ "${YESNO}" = "y" ] ; then
+	        mv -f "${file}".posix "${file}"
+        fi
     done
 
     return 0
@@ -380,7 +380,7 @@ function get_os_name ()
         SunOS)
             case `uname -r` in
                 5.*) echo Solaris ;;
-                  *) echo SunOS ;;
+                *) echo SunOS ;;
             esac
             ;;
         Linux)
@@ -392,7 +392,7 @@ function get_os_name ()
         AIX) 
             echo AIX ;;
         *) echo unknown ;;
-   esac
+    esac
 }
 
 # print out the number of characters which exist in a file
@@ -416,19 +416,19 @@ function get_chars ()
 function insert_quotes ()  
 {
     if [ $# -ne 1 ] ; then
-        print_error "Incorrect Arguments."
+        print_error "Insufficient Arguments."
         return 1
     fi
 
     if [ ! -f "${1}" ] ; then
-	print_error "Argument must be a file."
-	return 1
+	    print_error "Argument must be a file."
+	    return 1
     fi
 
     while read ln
-      do
-      ln=\"$ln\"
-      printf "${ln}\n"
+    do
+        ln=\"$ln\"
+        printf "${ln}\n"
     done < "${1}"
 }
 
@@ -455,56 +455,56 @@ function c ()
 # Arguments: $@ -> what to remove
 function rm ()
 {
-   /bin/rm -i "${@}"
+    /bin/rm -i "${@}"
 }
 
 # listing with colours by default
 # Arguments: $@ -> what to list
 function ls ()
 {
-   /bin/ls --color=auto "${@}"
+    /bin/ls --color=auto "${@}"
 }
 
 # long listing
 # Arguments: $@ -> what to list
 function ll ()
 {
-   /bin/ls -l --color=auto "${@}"
+    /bin/ls -l --color=auto "${@}"
 }
 
 # list all files
 # Arguments: $@ -> what to list
 function la ()
 {
-   /bin/ls -A --color=auto "${@}"
+    /bin/ls -A --color=auto "${@}"
 }
 
 # list by column and type
 # Arguments: $@ -> what to list
 function l ()
 {
-   /bin/ls -CF --color=auto "${@}"
+    /bin/ls -CF --color=auto "${@}"
 }
 
 # grep with colours by default
 # Arguments: $@ -> what to match
 function grep ()
 {
-   /bin/grep --color=auto "${@}"
+    /bin/grep --color=auto "${@}"
 }
 
 # fgrep with colours by default
 # Arguments: $@ -> what to match
 function fgrep ()
 {
-   /bin/fgrep --color=auto "${@}"
+    /bin/fgrep --color=auto "${@}"
 }
 
 # egrep with colours by default
 # Arguments: $@ -> what to match
 function egrep ()
 {
-   /bin/egrep --color=auto "${@}"
+    /bin/egrep --color=auto "${@}"
 }
 
 # verbose move/rename
@@ -525,7 +525,7 @@ function cp ()
 # Arguments: $@ -> what to match
 function fsort ()
 {
-        ls -lSh ${@} 2>/dev/null | grep -v total | awk '{print $5 "\t" $9}'
+    ls -lSh ${@} 2>/dev/null | grep -v total | awk '{print $5 "\t" $9}'
 }
 
 # sort mixed (directories & files)
@@ -540,14 +540,44 @@ function dsort ()
 function bkup ()
 {
     if [ $# -ne 1 ] ; then
-        print_error "Incorrect Arguments."
+        print_error "Insufficient Arguments."
         return 1
     fi
 
     FILE_COPY=${1}.`date +%Y%m%d.%H%M.ORIG`
     mv -f ${1} ${FILE_COPY}
     printf "Backing up ${1} to ${FILE_COPY}\n"
-    cp -p ${FILE_COPY} ${1}
+    cp -p "${FILE_COPY}" "${1}"
 
     unset FILE_COPY
+}
+
+# show a message near the mouse
+# useful for things like ``./build && msg "libc build"''
+# Arguments: $1 -> the message
+function msg ()
+{
+    if [ $? -eq 0 ] ; then
+        OUT="success"
+    else
+        OUT="failure"
+    fi
+
+    type xmessage >/dev/null
+
+    if [ $? -ne 0 ] ; then
+	    print_error "xmessage is required, please install it."
+	    return 1
+    fi
+
+    if [ $# -ne 1 ] ; then
+        print_error "Insufficient Arguments."
+        return 1
+    fi
+
+    MSG="${1}: ${OUT}"
+
+    xmessage -buttons ok -default ok -nearmouse "${MSG}" 2>/dev/null
+
+    unset OUT ERR
 }
