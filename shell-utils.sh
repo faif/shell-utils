@@ -409,12 +409,6 @@ function rm_all ()
     file * | grep "${1}" | awk '{ print $1 }' | sed 's/://' | xargs rm
 }
 
-# shortcut to clear
-function c ()
-{
-    clear
-}
-
 # verbose remove
 # Arguments: $@ -> what to remove
 function rm ()
@@ -517,7 +511,7 @@ function bkup ()
 }
 
 # show a message near the mouse
-# useful for things like ``./build && msg "libc build"''
+# useful for things like ``./build ; msg "libc build"''
 # Arguments: $1 -> the message
 function msg ()
 {
@@ -543,5 +537,30 @@ function msg ()
 
     xmessage -buttons ok -default ok -nearmouse "${MSG}" 2>/dev/null
 
-    unset OUT ERR
+    unset OUT ERR MSG
+}
+
+# print a specific line of a file
+# Arguments: $1 -> the line number
+#            $2 -> the file
+function pl ()
+{
+    if [ $# -ne 2 ] ; then
+        print_error "Insufficient Arguments."
+        return 1
+    fi
+
+    sed -n "${1}p" ${2}
+}
+
+# create a directory and enter it
+# Arguments: $1 -> the directory name 
+function mkcd ()
+{
+    if [ $# -ne 1 ] ; then
+        print_error "Insufficient Arguments."
+        return 1
+    fi
+
+    mkdir "${1}" && cd "${1}"
 }
