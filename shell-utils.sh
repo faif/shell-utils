@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # shell-utils.sh -- A collection of useful shellscript functions
-# Copyright (C) 2005-12  Sakis Kasampalis <faifgnu@gmail.com>
+# Copyright (C) 2005-13  Sakis Kasampalis <s.kasampalis@zoho.com>
 
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -19,21 +19,21 @@
 
 # prints an error message to STDERR
 # Arguments: $@ -> message to print
-function print_error () 
-{ 
+function perr ()
+{
     printf "ERROR: ${@}\n" >&2
 }
 
 # print a warning nessage to STDERR
 # Arguments: $@ -> message to print
-function print_warning ()  
-{ 
+function pwarn ()
+{
     printf "WARNING: ${@}\n" >&2
 }
 
 # print a usage message and then exits
 # Arguments: $@ -> message to print
-function print_usage ()  
+function puse ()
 {
     printf "USAGE: ${@}\n" >&2
 }
@@ -42,20 +42,20 @@ function print_usage ()
 # Arguments: $1 -> The prompt
 #            $2 -> The default answer (optional)
 # Variables: YESNO -> set to the user response y for yes, n for no
-function prompt_yes_no ()  
+function prompt-yn ()
 {
-    if [ $# -lt 1 ] ; then 
-	    print_error "Insufficient Arguments."
+    if [ $# -lt 1 ] ; then
+	    perr "Insufficient Arguments."
 	    return 1
     fi
 
     DEF_ARG=""
     YESNO=""
 
-    case "${2}" in 
-	    [yY]|[yY][eE][sS]) 
+    case "${2}" in
+	    [yY]|[yY][eE][sS])
 	        DEF_ARG=y ;;
-	    [nN]|[nN][oO]) 
+	    [nN]|[nN][oO])
 	        DEF_ARG=n ;;
     esac
 
@@ -69,14 +69,14 @@ function prompt_yes_no ()
 
 	    read YESNO
 
-	    if [ -z "${YESNO}" ] ; then 
+	    if [ -z "${YESNO}" ] ; then
 	        YESNO="${DEF_ARG}"
 	    fi
 
-	    case "${YESNO}" in 
-	        [yY]|[yY][eE][sS]) 
+	    case "${YESNO}" in
+	        [yY]|[yY][eE][sS])
 		        YESNO=y ; break ;;
-	        [nN]|[nN][oO]) 
+	        [nN]|[nN][oO])
 		        YESNO=n ; break ;;
 	        *)
 		        YESNO="" ;;
@@ -89,13 +89,13 @@ function prompt_yes_no ()
 }
 
 # ask a question
-# Arguments: $1 -> The prompt 
+# Arguments: $1 -> The prompt
 #            $2 -> The default answer (optional)
 # Variables: RESPONSE -> set to the user response
-function prompt_response ()  
+function prompt-resp ()
 {
     if [ $# -lt 1 ] ; then
-	    print_error "Insufficient Arguments."
+	    perr "Insufficient Arguments."
 	    return 1
     fi
 
@@ -105,12 +105,12 @@ function prompt_response ()
     while :
     do
 	    printf "${1} ? "
-	    if [ -n "${DEF_ARG}" -a "${DEF_ARG}" != "-" ] ; then 
+	    if [ -n "${DEF_ARG}" -a "${DEF_ARG}" != "-" ] ; then
 	        printf "[${DEF_ARG}] "
  	    fi
-	    
+
 	    read RESPONSE
-	    
+
 	    if [ -n "${RESPONSE}" ] ; then
 	        break
 	    elif [ -z "${RESPONSE}" -a -n "${DEF_ARG}" ] ; then
@@ -127,10 +127,10 @@ function prompt_response ()
 
 # print the available space for a directory in KB
 # Arguments: $1 -> The directory to check
-function get_free_space ()  
+function free-space ()
 {
     if [ $# -lt 1 ] ; then
-	    print_usage "get_free_space [directory]"
+	    puse "get_free_space [directory]"
 	    return 1
     fi
 
@@ -142,9 +142,9 @@ function get_free_space ()
 #            $2 -> The amount of space to check for
 #            $3 -> The units for $2 (optional)
 #                  k for kilobytes
-#                  m for megabytes 
+#                  m for megabytes
 #                  g for gigabytes
-function is_space_available ()
+function is-space-avail ()
 {
     if [ $# -lt 2 ] ; then
 	    print_error "Insufficient Arguments."
@@ -164,8 +164,8 @@ function is_space_available ()
 	    [gG]|[gG][bB])
             SPACE_MIN=`echo "$SPACE_MIN * 1024 * 1024" | bc` ;;
     esac
-	
-    if [ `get_free_space "$1"` -gt "${SPACE_MIN}" ] ; then
+
+    if [ `free-space "$1"` -gt "${SPACE_MIN}" ] ; then
 	    return 0
     fi
 
@@ -175,10 +175,10 @@ function is_space_available ()
 
 # print a list of process id(s) matching $1
 # Arguments: $1 -> the process name to search for
-function get_pid ()
+function get-pid ()
 {
     if [ $# -lt 1 ] ; then
-	    print_error "Insufficient Arguments."
+	    perr "Insufficient Arguments."
         return 1
     fi
 
@@ -191,17 +191,17 @@ function get_pid ()
 
 # print the numeric user id
 # Arguments: $1 -> the user name
-function get_uid ()
+function get-uid ()
 {
     if [ $# -lt 1 ] ; then
-	    print_error "Insufficient Arguments."
+	    perr "Insufficient Arguments."
         return 1
     fi
 
     ID=`id ${1} 2>/dev/null`
 
     if [ $? -eq 1 ] ; then
-	    print_error "No such user: ${1}"
+	    perr "No such user: ${1}"
 	    return 1
     fi
 
@@ -213,26 +213,26 @@ function get_uid ()
 
 # print an input string to lower case
 # Arguments: $@ -> the string
-function to_lower ()  
+function to-lower ()
 {
     printf "${@}\n" | tr '[A-Z]' '[a-z]'
 }
 
 # print an input string to upper case
 # Arguments: $@ -> the string
-function to_upper ()  
+function to-upper ()
 {
-    printf "${@}\n" | tr '[a-z]' '[A-Z]' 
+    printf "${@}\n" | tr '[a-z]' '[A-Z]'
 }
 
 # convert the input files to lower case
 # Arguments: $@ -> files to convert
-function file_to_lower ()
+function file-to-lower ()
 {
     for file in "${@}"
     do
 	    if [ ! -f "${file}" ]; then
-	        print_error "File ${file} does not exist";
+	        perr "File ${file} does not exist";
 	    else
 	        mv -f "${file}" "`printf "${file}\n" | tr '[A-Z]' '[a-z]'`"
 	    fi
@@ -243,12 +243,12 @@ function file_to_lower ()
 
 # convert the input files to upper case
 # Arguments: $@ -> files to convert
-function file_to_upper ()  
+function file-to-upper ()
 {
     for file in "${@}"
     do
 	    if [ ! -f "${file}" ]; then
-	        print_error "File ${file} does not exist";
+	        perr "File ${file} does not exist";
 	    else
 	        mv -f "${file}" "`printf "${file}\n" | tr '[a-z]' '[A-Z]'`"
 	    fi
@@ -260,10 +260,10 @@ function file_to_upper ()
 # rename all the files with a new suffix
 # Arguments: $1 -> the old suffix (for example html)
 #            $2 -> the new suffix (for example xhtml)
-function rename_all_suffix () 
+function ren-all-suf ()
 {
     if [ $# -lt 2 ] ; then
-	    print_error "Insufficient arguments."
+	    perr "Insufficient arguments."
 	    return 1
     fi
 
@@ -288,12 +288,12 @@ function rename_all_suffix ()
 }
 
 # rename all the files with a new prefix
-# Arguments: $1 -> the old prefix 
+# Arguments: $1 -> the old prefix
 #            $2 -> the new prefix
-function rename_all_prefix () 
+function ren-all-pref ()
 {
     if [ $# -lt 2 ] ; then
-	    print_error "Insufficient arguments."
+	    perr "Insufficient arguments."
 	    return 1
     fi
 
@@ -303,7 +303,7 @@ function rename_all_prefix ()
     # fake command to check if the prefix really exists
     ls "${OLDPREFIX}"* 2>/dev/null
     if [ $? -ne 0 ] ; then
-	    print_warning "There are no files with the prefix \`${OLDPREFIX}'."
+	    pwarn "There are no files with the prefix \`${OLDPREFIX}'."
 	    return 1
     fi
 
@@ -319,7 +319,7 @@ function rename_all_prefix ()
 
 # convert a list of dos formatted files to the POSIX format
 # Arguments: $@ -> the list of files to convert
-function dos2posix () 
+function dos2posix ()
 {
     for file in "${@}"
     do
@@ -334,7 +334,7 @@ function dos2posix ()
 }
 
 # print the system's name
-function get_os_name ()
+function os-name ()
 {
     case `uname -s` in
         *BSD)
@@ -353,7 +353,7 @@ function get_os_name ()
             echo MINIX ;;
         HP-UX)
             echo HPUX ;;
-        AIX) 
+        AIX)
             echo AIX ;;
         *) echo unknown ;;
     esac
@@ -361,9 +361,9 @@ function get_os_name ()
 
 # print out the number of characters which exist in a file
 # Arguments: $@ -> the files to count the chars of
-function get_chars ()  
+function chars ()
 {
-    case `get_os_name` in
+    case `os-name` in
         bsd|sunos|linux)
             WCOPT="-c" ;;
         *)
@@ -377,15 +377,15 @@ function get_chars ()
 
 # insert quotes in the beggining and the end of each file's line
 # Arguments: $1 -> the file of which the contents will be quoted
-function insert_quotes ()  
+function ins-quotes ()
 {
     if [ $# -ne 1 ] ; then
-        print_error "Insufficient Arguments."
+        perr "Insufficient Arguments."
         return 1
     fi
 
     if [ ! -f "${1}" ] ; then
-	    print_error "Argument must be a file."
+	    perr "Argument must be a file."
 	    return 1
     fi
 
@@ -399,10 +399,10 @@ function insert_quotes ()
 # remove all the files of a specific type that exist in the current directory
 # Arguments: $1 -> the string to search in the output of `file'
 # NOTE: use with caution...
-function rm_all ()
+function rm-all ()
 {
     if [ $# -ne 1 ] ; then
-        print_error "Incorrect Arguments."
+        perr "Incorrect Arguments."
         return 1
     fi
 
@@ -479,6 +479,20 @@ function cp ()
     /bin/cp -i "${@}"
 }
 
+# make a file executable
+# Arguments: $@ -> what to match
+function cx ()
+{
+    /bin/chmod +x "${@}"
+}
+
+# count lines
+# Arguments: $@ -> what to match
+function cl ()
+{
+    /usr/bin/wc -l "${@}"
+}
+
 # sort files
 # Arguments: $@ -> what to match
 function fsort ()
@@ -498,7 +512,7 @@ function dsort ()
 function bkup ()
 {
     if [ $# -ne 1 ] ; then
-        print_error "Insufficient Arguments."
+        perr "Insufficient Arguments."
         return 1
     fi
 
@@ -524,12 +538,12 @@ function msg ()
     type xmessage >/dev/null
 
     if [ $? -ne 0 ] ; then
-	    print_error "xmessage is required, please install it."
+	    perr "xmessage is required, please install it."
 	    return 1
     fi
 
     if [ $# -ne 1 ] ; then
-        print_error "Insufficient Arguments."
+        perr "Insufficient Arguments."
         return 1
     fi
 
@@ -543,10 +557,10 @@ function msg ()
 # print a specific line of a file
 # Arguments: $1 -> the line number
 #            $2 -> the file
-function pl ()
+function pln ()
 {
     if [ $# -ne 2 ] ; then
-        print_error "Insufficient Arguments."
+        perr "Insufficient Arguments."
         return 1
     fi
 
@@ -554,11 +568,11 @@ function pl ()
 }
 
 # create a directory and enter it
-# Arguments: $1 -> the directory name 
+# Arguments: $1 -> the directory name
 function mkcd ()
 {
     if [ $# -ne 1 ] ; then
-        print_error "Insufficient Arguments."
+        perr "Insufficient Arguments."
         return 1
     fi
 
