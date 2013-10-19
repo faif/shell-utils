@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # shell-utils.sh -- A collection of useful shellscript functions
 # Copyright (C) 2005-13  Sakis Kasampalis <s.kasampalis@zoho.com>
@@ -21,21 +21,21 @@
 # Arguments: $@ -> message to print
 function perr ()
 {
-    printf "ERROR: ${@}\n" >&2
+    printf "ERROR: ${@}\n" 1>&2
 }
 
 # print a warning nessage to STDERR
 # Arguments: $@ -> message to print
 function pwarn ()
 {
-    printf "WARNING: ${@}\n" >&2
+    printf "WARNING: ${@}\n" 1>&2
 }
 
 # print a usage message and then exits
 # Arguments: $@ -> message to print
 function puse ()
 {
-    printf "USAGE: ${@}\n" >&2
+    printf "USAGE: ${@}\n" 1>&2
 }
 
 # ask a yes/no question
@@ -49,42 +49,42 @@ function prompt-yn ()
 	    return 1
     fi
 
-    DEF_ARG=""
-    YESNO=""
+    def_arg=""
+    yesno=""
 
     case "${2}" in
 	    [yY]|[yY][eE][sS])
-	        DEF_ARG=y ;;
+	        def_arg=y ;;
 	    [nN]|[nN][oO])
-	        DEF_ARG=n ;;
+	        def_arg=n ;;
     esac
 
     while :
     do
 	    printf "${1} (y/n)? "
 
-	    if [ -n "${DEF_ARG}" ] ; then
-	        printf "[${DEF_ARG}] "
+	    if [ -n "${def_arg}" ] ; then
+	        printf "[${def_arg}] "
 	    fi
 
-	    read YESNO
+	    read yesno
 
-	    if [ -z "${YESNO}" ] ; then
-	        YESNO="${DEF_ARG}"
+	    if [ -z "${yesno}" ] ; then
+	        yesno="${def_arg}"
 	    fi
 
-	    case "${YESNO}" in
+	    case "${yesno}" in
 	        [yY]|[yY][eE][sS])
-		        YESNO=y ; break ;;
+		        yesno=y ; break ;;
 	        [nN]|[nN][oO])
-		        YESNO=n ; break ;;
+		        yesno=n ; break ;;
 	        *)
-		        YESNO="" ;;
+		        yesno="" ;;
 	    esac
     done
 
-    export YESNO
-    unset DEF_ARG
+    export yesno
+    unset def_arg
     return 0
 }
 
@@ -99,29 +99,29 @@ function prompt-resp ()
 	    return 1
     fi
 
-    RESPONSE=""
-    DEF_ARG="${2}"
+    response=""
+    def_arg="${2}"
 
     while :
     do
 	    printf "${1} ? "
-	    if [ -n "${DEF_ARG}" -a "${DEF_ARG}" != "-" ] ; then
-	        printf "[${DEF_ARG}] "
+	    if [ -n "${def_arg}" -a "${def_arg}" != "-" ] ; then
+	        printf "[${def_arg}] "
  	    fi
 
-	    read RESPONSE
+	    read response
 
-	    if [ -n "${RESPONSE}" ] ; then
+	    if [ -n "${response}" ] ; then
 	        break
-	    elif [ -z "${RESPONSE}" -a -n "${DEF_ARG}" ] ; then
-	        RESPONSE="${DEF_ARG}"
-	        if [ "${RESPONSE}" = "-" ] ; then RESPONSE="" ; fi
+	    elif [ -z "${response}" -a -n "${def_arg}" ] ; then
+	        response="${def_arg}"
+	        if [ "${response}" = "-" ] ; then response="" ; fi
 	        break
 	    fi
     done
 
-    export RESPONSE
-    unset DEF_ARG
+    export response
+    unset def_arg
     return 0
 }
 
@@ -130,7 +130,7 @@ function prompt-resp ()
 function free-space ()
 {
     if [ $# -lt 1 ] ; then
-	    puse "get_free_space [directory]"
+	    puse "free-space [directory]"
 	    return 1
     fi
 
@@ -147,29 +147,29 @@ function free-space ()
 function is-space-avail ()
 {
     if [ $# -lt 2 ] ; then
-	    print_error "Insufficient Arguments."
+	    perr "Insufficient Arguments."
 	    return 1
     fi
 
     if [ ! -d "${1}" ] ; then
-	    print_error "${1} is not a directory."
+	    perr "${1} is not a directory."
 	    return 1
     fi
 
-    SPACE_MIN="${2}"
+    space_min="${2}"
 
     case "${3}" in
         [mM]|[mM][bB])
-            SPACE_MIN=`echo "$SPACE_MIN * 1024" | bc` ;;
+            space_min=`echo "$space_min * 1024" | bc` ;;
 	    [gG]|[gG][bB])
-            SPACE_MIN=`echo "$SPACE_MIN * 1024 * 1024" | bc` ;;
+            space_min=`echo "$space_min * 1024 * 1024" | bc` ;;
     esac
 
-    if [ `free-space "$1"` -gt "${SPACE_MIN}" ] ; then
+    if [ `free-space "$1"` -gt "${space_min}" ] ; then
 	    return 0
     fi
 
-    unset SPACE_MIN
+    unset space_min
     return 1
 }
 
@@ -198,16 +198,16 @@ function get-uid ()
         return 1
     fi
 
-    ID=`id ${1} 2>/dev/null`
+    id=`id ${1} 2>/dev/null`
 
     if [ $? -eq 1 ] ; then
 	    perr "No such user: ${1}"
 	    return 1
     fi
 
-    echo ${ID} | sed -e 's/(.*$//' -e 's/^uid=//'
+    echo ${id} | sed -e 's/(.*$//' -e 's/^uid=//'
 
-    unset ID
+    unset id
     return 0
 }
 
@@ -267,23 +267,23 @@ function ren-all-suf ()
 	    return 1
     fi
 
-    OLDSUFFIX="${1}"
-    NEWSUFFIX="${2}"
+    oldsuffix="${1}"
+    newsuffix="${2}"
 
     # fake command to check if the suffix really exists
-    ls *."${OLDSUFFIX}" 2>/dev/null
+    ls *."${oldsuffix}" 2>/dev/null
     if [ $? -ne 0 ] ; then
-	    print_warning "There are no files with the suffix \`${OLDSUFFIX}'."
+	    pwarn "There are no files with the suffix \`${oldsuffix}'."
 	    return 1
     fi
 
-    for file in *."${OLDSUFFIX}"
+    for file in *."${oldsuffix}"
     do
-	    NEWNAME=`printf "${file}\n" | sed "s/${OLDSUFFIX}/${NEWSUFFIX}/"`
-	    mv -i "${file}" "${NEWNAME}"
+	    newname=`printf "${file}\n" | sed "s/${oldsuffix}/${newsuffix}/"`
+	    mv -i "${file}" "${newname}"
     done
 
-    unset OLDSUFFIX NEWSUFFIX NEWNAME
+    unset oldsuffix newsuffix newname
     return 0
 }
 
@@ -297,23 +297,23 @@ function ren-all-pref ()
 	    return 1
     fi
 
-    OLDPREFIX="${1}"
-    NEWPREFIX="${2}"
+    oldprefix="${1}"
+    newprefix="${2}"
 
     # fake command to check if the prefix really exists
-    ls "${OLDPREFIX}"* 2>/dev/null
+    ls "${oldprefix}"* 2>/dev/null
     if [ $? -ne 0 ] ; then
-	    pwarn "There are no files with the prefix \`${OLDPREFIX}'."
+	    pwarn "There are no files with the prefix \`${oldprefix}'."
 	    return 1
     fi
 
-    for file in "${OLDPREFIX}"*
+    for file in "${oldprefix}"*
     do
-	    NEWNAME=`printf "${file}\n" | sed "s/${OLDPREFIX}/${NEWPREFIX}/"`
-	    mv -i "${file}" "${NEWNAME}"
+	    newname=`printf "${file}\n" | sed "s/${oldprefix}/${newprefix}/"`
+	    mv -i "${file}" "${newname}"
     done
 
-    unset OLDPREFIX NEWPREFIX NEWNAME
+    unset oldprefix newprefix newname
     return 0
 }
 
@@ -324,8 +324,8 @@ function dos2posix ()
     for file in "${@}"
     do
         tr -d '\015' < "${file}" > "${file}".posix
-        prompt_yes_no "Overwrite ${file}"
-        if [ "${YESNO}" = "y" ] ; then
+        prompt-yn "Overwrite ${file}"
+        if [ "${yesno}" = "y" ] ; then
 	        mv -f "${file}".posix "${file}"
         fi
     done
@@ -365,14 +365,14 @@ function chars ()
 {
     case `os-name` in
         bsd|sunos|linux)
-            WCOPT="-c" ;;
+            wcopt="-c" ;;
         *)
-            WCOPT="-m" ;;
+            wcopt="-m" ;;
     esac
 
-    wc "${WCOPT}" "${@}"
+    wc "${wcopt}" "${@}"
 
-    unset WCOPT
+    unset wcopt
 }
 
 # insert quotes in the beggining and the end of each file's line
@@ -516,12 +516,12 @@ function bkup ()
         return 1
     fi
 
-    FILE_COPY=${1}.`date +%Y%m%d.%H%M.ORIG`
-    mv -f ${1} ${FILE_COPY}
-    printf "Backing up ${1} to ${FILE_COPY}\n"
-    cp -p "${FILE_COPY}" "${1}"
+    file_copy=${1}.`date +%Y%m%d.%H%M.ORIG`
+    mv -f ${1} ${file_copy}
+    printf "Backing up ${1} to ${file_copy}\n"
+    cp -p "${file_copy}" "${1}"
 
-    unset FILE_COPY
+    unset file_copy
 }
 
 # show a message near the mouse
@@ -530,9 +530,9 @@ function bkup ()
 function msg ()
 {
     if [ $? -eq 0 ] ; then
-        OUT="success"
+        out="success"
     else
-        OUT="failure"
+        out="failure"
     fi
 
     type xmessage >/dev/null
@@ -547,11 +547,11 @@ function msg ()
         return 1
     fi
 
-    MSG="${1}: ${OUT}"
+    msg="${1}: ${out}"
 
-    xmessage -buttons ok -default ok -nearmouse "${MSG}" 2>/dev/null
+    xmessage -buttons ok -default ok -nearmouse "${msg}" 2>/dev/null
 
-    unset OUT ERR MSG
+    unset out err msg
 }
 
 # print a specific line of a file
