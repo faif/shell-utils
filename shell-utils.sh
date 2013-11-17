@@ -578,3 +578,27 @@ function mkcd ()
 
     mkdir "${1}" && cd "${1}"
 }
+
+# list all the files that are newer than the given
+# Arguments: $1 -> the file name
+function newer()
+{
+    if [ $# -ne 1 ] ; then
+        perr "Insufficient Arguments."
+        return 1
+    fi
+
+    ls -t | sed "/^${1}\$/q" | grep -v "${1}"
+}
+
+# list all the files that are older than the given
+# Arguments: $1 -> the file name
+function older()
+{
+    if [ $# -ne 1 ] ; then
+        perr "Insufficient Arguments."
+        return 1
+    fi
+
+    ls -tr | sed "/^${1}\$/q" | grep -v "${1}"
+}
