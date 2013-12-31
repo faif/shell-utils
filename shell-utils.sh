@@ -602,3 +602,38 @@ function older()
 
     ls -tr | sed "/^${1}\$/q" | grep -v "${1}"
 }
+
+# detect double words (eg. "hello my   my friend")
+# Arguments: $1 -> the file(s) to be checked
+function dword()
+{
+    awk '
+    FILENAME != prev {
+        NR = 1
+        prev = FILENAME
+    }
+    NF > 0 {
+        if ($1 == lastword)
+	    printf "%s:%d:`%s`\n", FILENAME, NR, $1
+        for (i = 2; i <= NF; i++)
+	    if ($i == $(i-1) )
+	    printf "%s:%d:`%s`\n", FILENAME, NR, $i
+	if (NF > 0)
+	    lastword = $NF
+    }' ${@}
+}
+
+# count word frequencies
+# Arguments: $1 -> the file(s) to use while counting
+function wfreq()
+{
+    awk '
+    {
+        for (i = 1; i <= NF; i++)
+            cnt[$i]++
+    }
+    END {
+        for (w in cnt)
+            print w, cnt[w]
+    }' ${@}
+}
