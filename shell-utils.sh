@@ -41,7 +41,7 @@ function puse ()
 # ask a yes/no question
 # Arguments: $1 -> The prompt
 #            $2 -> The default answer (optional)
-# Variables: YESNO -> set to the user response y for yes, n for no
+# Variables: yesno -> set to the user response y for yes, n for no
 function prompt-yn ()
 {
     if [ $# -lt 1 ] ; then
@@ -91,7 +91,7 @@ function prompt-yn ()
 # ask a question
 # Arguments: $1 -> The prompt
 #            $2 -> The default answer (optional)
-# Variables: RESPONSE -> set to the user response
+# Variables: response -> set to the user response
 function prompt-resp ()
 {
     if [ $# -lt 1 ] ; then
@@ -636,4 +636,77 @@ function wfreq()
         for (w in cnt)
             print w, cnt[w]
     }' ${@}
+}
+
+# get the numeric value of a month (eg. march = 3)
+# Arguments: $1 -> the month's name
+# Variables: nmonth -> set to the value of the month
+function n-month()
+{
+    if [ $# -ne 1 ] ; then
+        perr "Insufficient Arguments."
+        return 1
+    fi
+
+    nmonth=0
+
+    case $1 in
+	jan*) nmonth=1  ;;
+	feb*) nmonth=2  ;;
+	mar*) nmonth=3  ;;
+	apr*) nmonth=4  ;;
+	may*) nmonth=5  ;;
+	jun*) nmonth=6  ;;
+	jul*) nmonth=7  ;;
+	aug*) nmonth=8  ;;
+	sep*) nmonth=9  ;;
+	oct*) nmonth=10 ;;
+	nov*) nmonth=11 ;;
+	dec*) nmonth=12 ;;
+	*) perr "Incorrect month." ; return 1 ;;
+    esac
+
+    export nmonth
+    return 0
+}
+
+# /usr/bin/cal improved
+# examples: `cal y' shows the full current year
+#           `cal mar' shows march of the current year
+#           `cal apr - jun' shows april-june of the current year
+function cal()
+{
+    cyear=`date | awk '{ print $4 }'`  # current year
+
+    case $# in
+	1)
+	    case $1 in
+		[yY]*) year=$cyear ;;
+		jan*|feb*|mar*|apr*|may*|jun*|jul*|aug*|sep*|oct*|nov*|dec*) month=$1; year=$cyear ;;
+		*) year=$1 ;;
+	    esac ;;
+	2)
+    	    month=$1; year=$2 ;;
+	3)  month=$1; month2=$3 ; year=$cyear ;; # eg. cal mar - jun
+	*)  month=$1; year=$2 ;;
+    esac
+
+    if [ -z $month2 ] ; then
+	/usr/bin/cal $month $year
+    else			# assume month range
+	# TODO: replace (with an array?) and loop to avoid code duplication
+	n-month $month
+	if [ $? -eq 0 ] ; then
+	    m1=$nmonth
+	fi
+	n-month $month2
+	if [ $? -eq 0 ] ; then
+	    m2=$nmonth
+	fi
+	for m in $(seq $m1 $m2) ; do
+	    /usr/bin/cal $m $year
+	done
+    fi
+
+    unset cyear year month month2
 }
