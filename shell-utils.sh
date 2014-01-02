@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # shell-utils.sh -- A collection of useful shellscript functions
-# Copyright (C) 2005-13  Sakis Kasampalis <s.kasampalis@zoho.com>
+# Copyright (C) 2005-14  Sakis Kasampalis <s.kasampalis@zoho.com>
 
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -685,8 +685,7 @@ function cal()
 		jan*|feb*|mar*|apr*|may*|jun*|jul*|aug*|sep*|oct*|nov*|dec*) month=$1; year=$cyear ;;
 		*) year=$1 ;;
 	    esac ;;
-	2)
-    	    month=$1; year=$2 ;;
+	2)  month=$1; year=$2 ;;
 	3)  month=$1; month2=$3 ; year=$cyear ;; # eg. cal mar - jun
 	*)  month=$1; year=$2 ;;
     esac
