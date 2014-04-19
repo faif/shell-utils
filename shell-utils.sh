@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 # shell-utils.sh -- A collection of useful shellscript functions
 # Copyright (C) 2005-14  Sakis Kasampalis <s.kasampalis@zoho.com>
@@ -17,86 +17,82 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
+
 # prints an error message to STDERR
 # Arguments: $@ -> message to print
-function perr ()
+perr ()
 {
-    printf "ERROR: ${@}\n" 1>&2
+    printf "ERROR: ${@}\n" >&2
 }
 
 # print a warning nessage to STDERR
 # Arguments: $@ -> message to print
-function pwarn ()
+pwarn ()
 {
-    printf "WARNING: ${@}\n" 1>&2
+    printf "WARNING: ${@}\n" >&2
 }
 
 # print a usage message and then exits
 # Arguments: $@ -> message to print
-function puse ()
+puse ()
 {
-    printf "USAGE: ${@}\n" 1>&2
+    printf "USAGE: ${@}\n" >&2
 }
 
 # ask a yes/no question
 # Arguments: $1 -> The prompt
 #            $2 -> The default answer (optional)
-# Variables: yesno -> set to the user response y for yes, n for no
-function prompt-yn ()
+# Variables: yesno -> set to the user response (y for yes, n for no)
+prompt_yn ()
 {
-    if [ $# -lt 1 ] ; then
-	    perr "Insufficient Arguments."
-	    return 1
+    if [ $# -lt 1 ]
+    then
+	puse "prompt_yn prompt [default answer]"
+	return 1
     fi
 
     def_arg=""
     yesno=""
 
     case "${2}" in
-	    [yY]|[yY][eE][sS])
-	        def_arg=y ;;
-	    [nN]|[nN][oO])
-	        def_arg=n ;;
+	[yY]|[yY][eE][sS])
+	    def_arg=y ;;
+	[nN]|[nN][oO])
+	    def_arg=n ;;
     esac
 
     while :
     do
-	    printf "${1} (y/n)? "
+	printf "${1} (y/n)? "
+	test -n "${def_arg}" && printf "[${def_arg}] "
 
-	    if [ -n "${def_arg}" ] ; then
-	        printf "[${def_arg}] "
-	    fi
+	read yesno
+	test -z "${yesno}" && yesno="${def_arg}"
 
-	    read yesno
-
-	    if [ -z "${yesno}" ] ; then
-	        yesno="${def_arg}"
-	    fi
-
-	    case "${yesno}" in
-	        [yY]|[yY][eE][sS])
-		        yesno=y ; break ;;
-	        [nN]|[nN][oO])
-		        yesno=n ; break ;;
-	        *)
-		        yesno="" ;;
-	    esac
+	case "${yesno}" in
+	    [yY]|[yY][eE][sS])
+		yesno=y ; break ;;
+	    [nN]|[nN][oO])
+		yesno=n ; break ;;
+	    *)
+		yesno="" ;;
+	esac
     done
 
     export yesno
     unset def_arg
-    return 0
 }
 
 # ask a question
 # Arguments: $1 -> The prompt
 #            $2 -> The default answer (optional)
 # Variables: response -> set to the user response
-function prompt-resp ()
+prompt_resp ()
 {
-    if [ $# -lt 1 ] ; then
-	    perr "Insufficient Arguments."
-	    return 1
+    if [ $# -lt 1 ]
+    then
+	puse "promp_resp prompt [default answer]"
+	return 1
     fi
 
     response=""
@@ -104,197 +100,138 @@ function prompt-resp ()
 
     while :
     do
-	    printf "${1} ? "
-	    if [ -n "${def_arg}" -a "${def_arg}" != "-" ] ; then
-	        printf "[${def_arg}] "
- 	    fi
+	printf "${1} ? "
+	test -n "${def_arg}" -a "${def_arg}" != "-" && printf "[${def_arg}] "
 
-	    read response
+	read response
+	test -n "${response}" && break
 
-	    if [ -n "${response}" ] ; then
-	        break
-	    elif [ -z "${response}" -a -n "${def_arg}" ] ; then
-	        response="${def_arg}"
-	        if [ "${response}" = "-" ] ; then response="" ; fi
-	        break
-	    fi
+	if [ -z "${response}" -a -n "${def_arg}" ]
+	then
+	    response="${def_arg}"
+	    break
+	fi
     done
+
+    test "${response}" = "-" && response=""
 
     export response
     unset def_arg
-    return 0
-}
-
-# print the available space for a directory in KB
-# Arguments: $1 -> The directory to check
-function free-space ()
-{
-    if [ $# -lt 1 ] ; then
-	    puse "free-space [directory]"
-	    return 1
-    fi
-
-    df -k "${1}" | awk 'NR != 1 { print $4 ; }'
-}
-
-# check if there is sufficient space
-# Arguments: $1 -> The directory to check
-#            $2 -> The amount of space to check for
-#            $3 -> The units for $2 (optional)
-#                  k for kilobytes
-#                  m for megabytes
-#                  g for gigabytes
-function is-space-avail ()
-{
-    if [ $# -lt 2 ] ; then
-	    perr "Insufficient Arguments."
-	    return 1
-    fi
-
-    if [ ! -d "${1}" ] ; then
-	    perr "${1} is not a directory."
-	    return 1
-    fi
-
-    space_min="${2}"
-
-    case "${3}" in
-        [mM]|[mM][bB])
-            space_min=`echo "$space_min * 1024" | bc` ;;
-	    [gG]|[gG][bB])
-            space_min=`echo "$space_min * 1024 * 1024" | bc` ;;
-    esac
-
-    if [ `free-space "$1"` -gt "${space_min}" ] ; then
-	    return 0
-    fi
-
-    unset space_min
-    return 1
-}
+ }
 
 # print a list of process id(s) matching $1
 # Arguments: $1 -> the process name to search for
-function get-pid ()
+get_pid ()
 {
-    if [ $# -lt 1 ] ; then
-	    perr "Insufficient Arguments."
+    if [ $# -lt 1 ]
+    then
+	perr "Insufficient Arguments."
         return 1
     fi
 
-    PSOPTS="-ef"
+    ps -ef | grep "${1}" | grep -v grep | awk '{ print $2; }'
 
-    ps "${PSOPTS}" | grep "${1}" | grep -v grep | awk '{ print $2; }'
-
-    unset PSOPTS
+    unset psopts
 }
 
 # print the numeric user id
 # Arguments: $1 -> the user name
-function get-uid ()
+get_uid ()
 {
-    if [ $# -lt 1 ] ; then
-	    perr "Insufficient Arguments."
+    if [ $# -lt 1 ]
+    then
+	perr "Insufficient Arguments."
         return 1
     fi
 
-    id=`id ${1} 2>/dev/null`
+    user_id=$(id ${1} 2>/dev/null)
 
-    if [ $? -eq 1 ] ; then
-	    perr "No such user: ${1}"
-	    return 1
+    if [ $? -ne 0 ]
+    then
+	perr "No such user: ${1}"
+	return 1
     fi
 
-    echo ${id} | sed -e 's/(.*$//' -e 's/^uid=//'
+    printf "${user_id}\n" | sed -e 's/(.*$//' -e 's/^uid=//'
 
-    unset id
-    return 0
+    unset user_id
 }
 
 # print an input string to lower case
 # Arguments: $@ -> the string
-function to-lower ()
+to_lower ()
 {
     printf "${@}\n" | tr '[A-Z]' '[a-z]'
 }
 
 # print an input string to upper case
 # Arguments: $@ -> the string
-function to-upper ()
+to_upper ()
 {
     printf "${@}\n" | tr '[a-z]' '[A-Z]'
 }
 
 # convert the input files to lower case
 # Arguments: $@ -> files to convert
-function file-to-lower ()
+file_to_lower ()
 {
     for file in "${@}"
     do
-	    if [ ! -f "${file}" ]; then
-	        perr "File ${file} does not exist";
-	    else
-	        mv -f "${file}" "`printf "${file}\n" | tr '[A-Z]' '[a-z]'`"
-	    fi
+	mv -f "${file}" "$(printf "${file}\n" | tr '[A-Z]' '[a-z]')" \
+	    2>/dev/null || perr "File ${file} does not exist"
     done
-
-    return 0
 }
 
 # convert the input files to upper case
 # Arguments: $@ -> files to convert
-function file-to-upper ()
+file_to_upper ()
 {
     for file in "${@}"
     do
-	    if [ ! -f "${file}" ]; then
-	        perr "File ${file} does not exist";
-	    else
-	        mv -f "${file}" "`printf "${file}\n" | tr '[a-z]' '[A-Z]'`"
-	    fi
+	mv -f "${file}" "$(printf "${file}\n" | tr '[a-z]' '[A-Z]')" \
+	    2>/dev/null || perr "File ${file} does not exist"
     done
-
-    return 0
 }
 
 # rename all the files with a new suffix
 # Arguments: $1 -> the old suffix (for example html)
 #            $2 -> the new suffix (for example xhtml)
-function ren-all-suf ()
+ren_all_suf ()
 {
-    if [ $# -lt 2 ] ; then
-	    perr "Insufficient arguments."
-	    return 1
+    if [ $# -lt 2 ]
+    then
+	puse "ren_all_suf oldsuffix newsuffix"
+	return 1
     fi
 
     oldsuffix="${1}"
     newsuffix="${2}"
 
     # fake command to check if the suffix really exists
-    ls *."${oldsuffix}" 2>/dev/null
-    if [ $? -ne 0 ] ; then
-	    pwarn "There are no files with the suffix \`${oldsuffix}'."
-	    return 1
+    if ! ls *."${oldsuffix}" 2>/dev/null
+    then
+	pwarn "There are no files with the suffix \`${oldsuffix}'."
+	return 1
     fi
 
     for file in *."${oldsuffix}"
     do
-	    newname=`printf "${file}\n" | sed "s/${oldsuffix}/${newsuffix}/"`
-	    mv -i "${file}" "${newname}"
+	newname=$(printf "${file}\n" | sed "s/${oldsuffix}/${newsuffix}/")
+	mv -i "${file}" "${newname}"
     done
 
     unset oldsuffix newsuffix newname
-    return 0
 }
 
 # rename all the files with a new prefix
 # Arguments: $1 -> the old prefix
 #            $2 -> the new prefix
-function ren-all-pref ()
+ren_all_pref ()
 {
-    if [ $# -lt 2 ] ; then
-	    perr "Insufficient arguments."
-	    return 1
+    if [ $# -lt 2 ]
+    then
+	puse "ren_all_pref oldprefix newprefix"
+	return 1
     fi
 
     oldprefix="${1}"
@@ -302,68 +239,65 @@ function ren-all-pref ()
 
     # fake command to check if the prefix really exists
     ls "${oldprefix}"* 2>/dev/null
-    if [ $? -ne 0 ] ; then
-	    pwarn "There are no files with the prefix \`${oldprefix}'."
-	    return 1
+    if ! ls *."${oldprefix}" 2>/dev/null
+    then
+	pwarn "There are no files with the prefix \`${oldprefix}'."
+	return 1
     fi
 
     for file in "${oldprefix}"*
     do
-	    newname=`printf "${file}\n" | sed "s/${oldprefix}/${newprefix}/"`
-	    mv -i "${file}" "${newname}"
+	newname=$(printf "${file}\n" | sed "s/${oldprefix}/${newprefix}/")
+	mv -i "${file}" "${newname}"
     done
 
     unset oldprefix newprefix newname
-    return 0
 }
 
 # convert a list of dos formatted files to the POSIX format
 # Arguments: $@ -> the list of files to convert
-function dos2posix ()
+dos2posix ()
 {
     for file in "${@}"
     do
         tr -d '\015' < "${file}" > "${file}".posix
-        prompt-yn "Overwrite ${file}"
-        if [ "${yesno}" = "y" ] ; then
-	        mv -f "${file}".posix "${file}"
-        fi
+        prompt_yn "Overwrite ${file}"
+        test "${yesno}" = "y" && mv -f "${file}".posix "${file}"
     done
-
-    return 0
 }
 
 # print the system's name
-function os-name ()
+os_name ()
 {
-    case `uname -s` in
+    case $(uname -s) in
         *BSD)
-            echo BSD ;;
+            printf BSD ;;
         Darwin)
-            echo Darwin ;;
+            printf Darwin ;;
         SunOS)
-            case `uname -r` in
-                5.*) echo Solaris ;;
-                *) echo SunOS ;;
+            case $(uname -r) in
+                5.*) printf Solaris ;;
+                *) printf SunOS ;;
             esac
             ;;
         Linux)
-            echo GNU/Linux ;;
+            printf GNU/Linux ;;
         MINIX*)
-            echo MINIX ;;
+            printf MINIX ;;
         HP-UX)
             echo HPUX ;;
         AIX)
             echo AIX ;;
         *) echo unknown ;;
     esac
+    printf "\n"
 }
 
 # print out the number of characters which exist in a file
 # Arguments: $@ -> the files to count the chars of
-function chars ()
+chars ()
 {
-    case `os-name` in
+    case $(os_name) in
         bsd|sunos|linux)
             wcopt="-c" ;;
         *)
@@ -377,16 +311,18 @@ function chars ()
 
 # insert quotes in the beggining and the end of each file's line
 # Arguments: $1 -> the file of which the contents will be quoted
-function ins-quotes ()
+ins_quotes ()
 {
-    if [ $# -ne 1 ] ; then
-        perr "Insufficient Arguments."
+    if [ $# -ne 1 ]
+    then
+        puse "ins_quotes file"
         return 1
     fi
 
-    if [ ! -f "${1}" ] ; then
-	    perr "Argument must be a file."
-	    return 1
+    if [ ! -f "${1}" ]
+    then
+	perr "Argument must be a file."
+	return 1
     fi
 
     while read ln
@@ -399,10 +335,11 @@ function ins-quotes ()
 # remove all the files of a specific type that exist in the current directory
 # Arguments: $1 -> the string to search in the output of `file'
 # NOTE: use with caution...
-function rm-all ()
+rm_all ()
 {
-    if [ $# -ne 1 ] ; then
-        perr "Incorrect Arguments."
+    if [ $# -ne 1 ]
+    then
+        puse "rm_all wildcard"
         return 1
     fi
 
@@ -411,112 +348,113 @@ function rm-all ()
 
 # verbose remove
 # Arguments: $@ -> what to remove
-function rm ()
+rm ()
 {
     /bin/rm -i "${@}"
 }
 
 # listing with colours by default
 # Arguments: $@ -> what to list
-function ls ()
+ls ()
 {
     /bin/ls --color=auto "${@}"
 }
 
 # long listing
 # Arguments: $@ -> what to list
-function ll ()
+ll ()
 {
     /bin/ls -l --color=auto "${@}"
 }
 
 # list all files
 # Arguments: $@ -> what to list
-function la ()
+la ()
 {
     /bin/ls -A --color=auto "${@}"
 }
 
 # list by column and type
 # Arguments: $@ -> what to list
-function l ()
+l ()
 {
     /bin/ls -CF --color=auto "${@}"
 }
 
 # grep with colours by default
 # Arguments: $@ -> what to match
-function grep ()
+grep ()
 {
     /bin/grep --color=auto "${@}"
 }
 
 # fgrep with colours by default
 # Arguments: $@ -> what to match
-function fgrep ()
+fgrep ()
 {
     /bin/fgrep --color=auto "${@}"
 }
 
 # egrep with colours by default
 # Arguments: $@ -> what to match
-function egrep ()
+egrep ()
 {
     /bin/egrep --color=auto "${@}"
 }
 
 # verbose move/rename
 # Arguments: $@ -> what to match
-function mv ()
+mv ()
 {
     /bin/mv -i "${@}"
 }
 
 # verbose copy
 # Arguments: $@ -> what to match
-function cp ()
+cp ()
 {
     /bin/cp -i "${@}"
 }
 
 # make a file executable
 # Arguments: $@ -> what to match
-function cx ()
+cx ()
 {
     /bin/chmod +x "${@}"
 }
 
 # count lines
 # Arguments: $@ -> what to match
-function cl ()
+cl ()
 {
     /usr/bin/wc -l "${@}"
 }
 
 # sort files
 # Arguments: $@ -> what to match
-function fsort ()
+fsort ()
 {
-    ls -lSh ${@} 2>/dev/null | grep -v total | awk '{print $5 "\t" $9}'
+    ls -lSh "${@}" 2>/dev/null | grep -v total | awk '{print $5 "\t" $9}'
 }
 
 # sort mixed (directories & files)
 # Arguments: $@ -> what to match
-function dsort ()
+dsort ()
 {
-    du -s ${@} 2>/dev/null | sort -rn | awk '{print $2}' | xargs du -sh 2>/dev/null
+    du -s "${@}" 2>/dev/null | sort -rn | awk '{print $2}' | xargs du -sh 2>/dev/null
 }
 
 # simple way to keep a backup of a file
 # Arguments: $1 -> the file
-function bkup ()
+bkup ()
 {
-    if [ $# -ne 1 ] ; then
-        perr "Insufficient Arguments."
+    if [ $# -ne 1 ]
+    then
+        puse "bkup file"
         return 1
     fi
 
-    file_copy=${1}.`date +%Y%m%d.%H%M.ORIG`
+    file_copy=${1}.$(date +%Y%m%d.%H%M.ORIG)
     mv -f ${1} ${file_copy}
     printf "Backing up ${1} to ${file_copy}\n"
     cp -p "${file_copy}" "${1}"
@@ -527,23 +465,22 @@ function bkup ()
 # show a message near the mouse
 # useful for things like ``./build ; msg "libc build"''
 # Arguments: $1 -> the message
-function msg ()
+msg ()
 {
-    if [ $? -eq 0 ] ; then
-        out="success"
-    else
-        out="failure"
-    fi
+    test $? -eq 0 && out=success
+    out=${out-failure}
 
     type xmessage >/dev/null
 
-    if [ $? -ne 0 ] ; then
-	    perr "xmessage is required, please install it."
-	    return 1
+    if [ $? -ne 0 ]
+    then
+	perr "xmessage is required, please install it."
+	return 1
     fi
 
-    if [ $# -ne 1 ] ; then
-        perr "Insufficient Arguments."
+    if [ $# -ne 1 ]
+    then
+        puse "msg 'my message'"
         return 1
     fi
 
@@ -557,10 +494,11 @@ function msg ()
 # print a specific line of a file
 # Arguments: $1 -> the line number
 #            $2 -> the file
-function pln ()
+pln ()
 {
-    if [ $# -ne 2 ] ; then
-        perr "Insufficient Arguments."
+    if [ $# -ne 2 ]
+    then
+        puse "pln line file"
         return 1
     fi
 
@@ -569,10 +507,11 @@ function pln ()
 
 # create a directory and enter it
 # Arguments: $1 -> the directory name
-function mkcd ()
+mkcd ()
 {
-    if [ $# -ne 1 ] ; then
-        perr "Insufficient Arguments."
+    if [ $# -ne 1 ]
+    then
+        puse "mkcd directory"
         return 1
     fi
 
@@ -581,10 +520,11 @@ function mkcd ()
 
 # list all the files that are newer than the given
 # Arguments: $1 -> the file name
-function newer()
+newer()
 {
-    if [ $# -ne 1 ] ; then
-        perr "Insufficient Arguments."
+    if [ $# -ne 1 ]
+    then
+        puse "newer file"
         return 1
     fi
 
@@ -593,10 +533,11 @@ function newer()
 
 # list all the files that are older than the given
 # Arguments: $1 -> the file name
-function older()
+older()
 {
-    if [ $# -ne 1 ] ; then
-        perr "Insufficient Arguments."
+    if [ $# -ne 1 ]
+    then
+        puse "older file"
         return 1
     fi
 
@@ -605,8 +546,14 @@ function older()
 
 # detect double words (eg. "hello my   my friend")
 # Arguments: $1 -> the file(s) to be checked
-function dword()
+dword()
 {
+    if [ $# -ne 1 ]
+    then
+        puse "dword file"
+        return 1
+    fi
+
     awk '
     FILENAME != prev {
         NR = 1
@@ -620,13 +567,19 @@ function dword()
 	    printf "%s:%d:`%s`\n", FILENAME, NR, $i
 	if (NF > 0)
 	    lastword = $NF
-    }' ${@}
+    }' "${@}"
 }
 
 # count word frequencies
 # Arguments: $1 -> the file(s) to use while counting
-function wfreq()
+wfreq()
 {
+    if [ $# -ne 1 ]
+    then
+        puse "wfreq file"
+        return 1
+    fi
+
     awk '
     {
         for (i = 1; i <= NF; i++)
@@ -635,16 +588,17 @@ function wfreq()
     END {
         for (w in cnt)
             print w, cnt[w]
-    }' ${@}
+    }' "${@}"
 }
 
 # get the numeric value of a month (eg. march = 3)
 # Arguments: $1 -> the month's name
 # Variables: nmonth -> set to the value of the month
-function n-month()
+n_month()
 {
-    if [ $# -ne 1 ] ; then
-        perr "Insufficient Arguments."
+    if [ $# -ne 1 ]
+    then
+        puse "n_month month"
         return 1
     fi
 
@@ -667,16 +621,15 @@ function n-month()
     esac
 
     export nmonth
-    return 0
 }
 
 # /usr/bin/cal improved
 # examples: `cal y' shows the full current year
 #           `cal mar' shows march of the current year
-#           `cal apr - jun' shows april-june of the current year
-function cal()
+#           `cal apr - jun' shows april-june of the current year (note the spaces)
+cal()
 {
-    cyear=`date | awk '{ print $4 }'`  # current year
+    cyear=$(date | awk '{ print $4 }')  # current year
 
     case $# in
 	1)
@@ -694,14 +647,10 @@ function cal()
 	/usr/bin/cal $month $year
     else			# assume month range
 	# TODO: replace (with an array?) and loop to avoid code duplication
-	n-month $month
-	if [ $? -eq 0 ] ; then
-	    m1=$nmonth
-	fi
-	n-month $month2
-	if [ $? -eq 0 ] ; then
-	    m2=$nmonth
-	fi
+	n_month $month
+	test $? -eq 0 && m1=$nmonth
+	n_month $month2
+	test $? -eq 0 && m2=$nmonth
 	for m in $(seq $m1 $m2) ; do
 	    /usr/bin/cal $m $year
 	done
