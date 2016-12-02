@@ -11,7 +11,7 @@ if [ -f ~/bin/shell-utils.sh ]; then
 fi
 ```
 Even though the library contains around fifteen functions, I found out that the most useful (at least if you are working with 
-many different file types) are `file_to_lower`, `file_to_upper` and `rename_all_suffix`, `rename_all_prefix`. See the 
-following figure to get an idea of how they can be invoked.
+many different file types) are `file_to_lower`, `file_to_upper` and `ren_all_suff`, `ren_all_pref`. See the 
+following figure to get an idea of how they can be invoked (the example uses their old longer names `rename_all_suffix` and `rename_all_prefix`).
 
 ![example](http://i67.tinypic.com/f1yw5u.png)
