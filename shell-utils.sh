@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # shell-utils.sh -- A collection of useful shellscript functions
-# Copyright (C) 2005-14  Sakis Kasampalis <s.kasampalis@zoho.com>
+# Copyright (C) 2005-16  Sakis Kasampalis <s.kasampalis@zoho.com>
 
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -273,7 +273,7 @@ os_name ()
         *BSD)
             printf BSD ;;
         Darwin)
-            printf Darwin ;;
+            printf macOS ;;
         SunOS)
             case $(uname -r) in
                 5.*) printf Solaris ;;
@@ -357,49 +357,56 @@ rm ()
 # Arguments: $@ -> what to list
 ls ()
 {
-    /bin/ls --color=auto "${@}"
+    case $(os_name) in
+        bsd|macOS)
+            lsopt="-G" ;;
+        *)
+            lsopt="-c" ;;
+    esac
+
+    /bin/ls "${lsopt}" "${@}"
 }
 
 # long listing
 # Arguments: $@ -> what to list
 ll ()
 {
-    /bin/ls -l --color=auto "${@}"
+    ls -lh "${@}"
 }
 
 # list all files
 # Arguments: $@ -> what to list
 la ()
 {
-    /bin/ls -A --color=auto "${@}"
+    ls -A "${@}"
 }
 
 # list by column and type
 # Arguments: $@ -> what to list
 l ()
 {
-    /bin/ls -CF --color=auto "${@}"
+    ls -CF "${@}"
 }
 
 # grep with colours by default
 # Arguments: $@ -> what to match
 grep ()
 {
-    /bin/grep --color=auto "${@}"
+    grep --color=auto "${@}"
 }
 
 # fgrep with colours by default
 # Arguments: $@ -> what to match
 fgrep ()
 {
-    /bin/fgrep --color=auto "${@}"
+    fgrep --color=auto "${@}"
 }
 
 # egrep with colours by default
 # Arguments: $@ -> what to match
 egrep ()
 {
-    /bin/egrep --color=auto "${@}"
+    egrep --color=auto "${@}"
 }
 
 # verbose move/rename
@@ -414,6 +421,12 @@ mv ()
 cp ()
 {
     /bin/cp -i "${@}"
+}
+
+# copy with progress using rsync
+pcp ()
+{
+    rsync --progress -ah "${@}"
 }
 
 # make a file executable
@@ -434,7 +447,7 @@ cl ()
 # Arguments: $@ -> what to match
 fsort ()
 {
-    ls -lSh "${@}" 2>/dev/null | grep -v total | awk '{print $5 "\t" $9}'
+    ls -lSh "${@}" 2>/dev/null | tail +2 | awk '{print $5 "\t" $9}'
 }
 
 # sort mixed (directories & files)
@@ -467,23 +480,23 @@ bkup ()
 # Arguments: $1 -> the message
 msg ()
 {
-    test $? -eq 0 && out=success
-    out=${out-failure}
-
-    type xmessage >/dev/null
+    type xmessage 2>/dev/null
 
     if [ $? -ne 0 ]
     then
 	perr "xmessage is required, please install it."
 	return 1
     fi
-
+    
     if [ $# -ne 1 ]
     then
         puse "msg 'my message'"
         return 1
     fi
 
+    test $? -eq 0 && out=success
+    out=${out-failure}
+    
     msg="${1}: ${out}"
 
     xmessage -buttons ok -default ok -nearmouse "${msg}" 2>/dev/null
@@ -658,3 +671,4 @@ cal()
 
     unset cyear year month month2
 }
+
