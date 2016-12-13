@@ -392,21 +392,21 @@ l ()
 # Arguments: $@ -> what to match
 grep ()
 {
-    grep --color=auto "${@}"
+    /usr/bin/grep --color=auto "${@}"
 }
 
 # fgrep with colours by default
 # Arguments: $@ -> what to match
 fgrep ()
 {
-    fgrep --color=auto "${@}"
+    /usr/bin/fgrep --color=auto "${@}"
 }
 
 # egrep with colours by default
 # Arguments: $@ -> what to match
 egrep ()
 {
-    egrep --color=auto "${@}"
+    /usr/bin/egrep --color=auto "${@}"
 }
 
 # verbose move/rename
